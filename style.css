@@ -362,3 +362,51 @@ body {
   width: 100%;
   height: 100%;
 }
+
+/* ================= TỐI ƯU GIAO DIỆN VIDEO CHO ĐIỆN THOẠI ================= */
+@media (max-width: 768px) {
+  .modal-overlay {
+    padding: 10px; /* Thu hẹp viền đen để lấy thêm không gian */
+  }
+  
+  .modal-content {
+    padding: 15px;
+    max-height: 95vh; /* Cho phép cửa sổ cao gần hết màn hình */
+  }
+  
+  #modal-video-title {
+    font-size: 16px !important;
+    margin-right: 35px; /* Chừa chỗ cho nút X */
+    margin-bottom: 12px !important;
+    white-space: nowrap; 
+    overflow: hidden;
+    text-overflow: ellipsis; /* Nếu tên bài dài quá sẽ tự biến thành dấu ... */
+  }
+  
+  .close-modal {
+    top: 5px;
+    right: 5px;
+    font-size: 32px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    background: #fff; /* Đảm bảo nút X không bị trong suốt chìm vào nền */
+    border-radius: 50%;
+  }
+  
+  .iframe-container {
+    /* Ép tỷ lệ khung hình cao hơn (gần 4:3) để Drive có chỗ hiển thị thanh công cụ */
+    padding-bottom: 75%; 
+    min-height: 250px;
+  }
+  
+  #btn-done-watching {
+    width: 100%; /* Trải dài nút để học sinh dễ bấm bằng ngón tay cái */
+    padding: 12px;
+    font-size: 15px;
+    margin-top: 5px;
+  }
+}
