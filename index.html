@@ -3,17 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hệ Thống Ôn Tập Trắc Nghiệm</title>
+  <title>"mukbang" V-ACT</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
   <div id="dashboard-screen" class="dashboard-container">
-    <h2>Combo đề thi</h2>
-    
+    <h2>"mukbang" V-ACT</h2>
+    <div class="category-block" style="margin-bottom: 30px;">
+      <div class="category-header">
+        <span>Records</span>
+      </div>
+      <div class="video-grid" id="video-grid-container">
+        <p style="padding: 20px; color: #666;">Đang tải bài giảng... ⏳</p>
+      </div>
+    </div>
+
+    <div id="video-modal" class="modal-overlay hidden">
+      <div class="modal-content" style="max-width: 800px; padding: 20px;">
+        <span class="close-modal" id="close-video-modal">&times;</span>
+        <h2 id="modal-video-title" style="margin-top: 0; color: #333; font-size: 18px; margin-bottom: 15px;">Tên bài giảng</h2>
+        
+        <div class="iframe-container">
+          <iframe id="yt-iframe" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+        
+        <div style="text-align: right; margin-top: 15px;">
+          <button class="btn-enter-quiz" id="btn-done-watching" style="background: var(--success-bg);">Đã hiểu bài, vào thi ngay!</button>
+        </div>
+      </div>
+    </div>
     <div class="category-block">
       <div class="category-header">
-        <span>KHO ĐỀ THI TRẮC NGHIỆM</span>
+        <span>Bài tập</span>
         <span class="toggle-icon">-</span>
       </div>
       <table class="dashboard-table">
