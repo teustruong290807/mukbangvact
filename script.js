@@ -1,10 +1,41 @@
 // Đã gắn link API chuẩn của bạn
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzL8ts4OYVYSNYDCELQ7ZN_2Z3KrOKsHElt3EdVl9w5zNMSBgrMwCuLQJFEiokEDrG5jQ/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxvDaLC3CPF76oD669ZF96EJ-UXNzleeDevU79fyQw8Xy9auH-Z-Gv5k9qvBPVtSvrTg/exec";
 
 let database = []; 
 let userName = ""; // Biến lưu tên người làm bài
 
 document.addEventListener("DOMContentLoaded", () => {
+  // --- TÍNH NĂNG MỞ VIDEO BÀI GIẢNG ---
+  const videoModal = document.getElementById("video-modal");
+  const ytIframe = document.getElementById("yt-iframe");
+  const modalVideoTitle = document.getElementById("modal-video-title");
+
+  // Bắt sự kiện click vào các thẻ video
+  document.querySelectorAll(".video-card").forEach(card => {
+    card.addEventListener("click", function() {
+      const ytId = this.getAttribute("data-ytid");
+      const title = this.querySelector(".video-title").innerText;
+      
+      modalVideoTitle.innerText = title;
+      // Gắn link nhúng Youtube (autoplay=1 để tự phát khi mở lên)
+      ytIframe.src = `https://www.youtube.com/embed/${ytId}?autoplay=1`;
+      
+      videoModal.classList.remove("hidden");
+    });
+  });
+
+  // Tắt Modal Video
+  document.getElementById("close-video-modal").addEventListener("click", () => {
+    videoModal.classList.add("hidden");
+    ytIframe.src = ""; // Xóa source để video ngừng phát và tắt tiếng
+  });
+
+  // Nút "Đã hiểu bài" -> Tắt video và cuộn xuống danh sách đề
+  document.getElementById("btn-done-watching").addEventListener("click", () => {
+    videoModal.classList.add("hidden");
+    ytIframe.src = "";
+    document.querySelector(".dashboard-table").scrollIntoView({ behavior: 'smooth' });
+  });
   const dashboardScreen = document.getElementById("dashboard-screen");
   const quizContainer = document.getElementById("quiz-container");
   const resultScreen = document.getElementById("result-screen");
@@ -20,21 +51,81 @@ document.addEventListener("DOMContentLoaded", () => {
   let timerId = null;         
 
   // --- HÀM TẢI DỮ LIỆU TỪ GOOGLE SHEETS ---
+  // --- HÀM TẢI DỮ LIỆU TỪ GOOGLE SHEETS ---
   async function loadDataFromSheet() {
     if (quizListEl) quizListEl.innerHTML = "<tr><td colspan='4' style='text-align:center;'>Đang tải dữ liệu từ kho đề... ⏳</td></tr>";
     
     try {
       const response = await fetch(APPS_SCRIPT_URL);
-      database = await response.json();
+      const apiData = await response.json(); // Nhận dữ liệu tổng hợp
       
-      // Sắp xếp đề thi theo thứ tự A-Z
+      database = apiData.quizzes; // Tách lấy kho đề thi
       database.sort((a, b) => a.title.localeCompare(b.title));
-      
       renderDashboard(); 
+
+      // Gọi hàm vẽ Video
+      renderVideos(apiData.videos); 
+      
     } catch (error) {
       if (quizListEl) quizListEl.innerHTML = "<tr><td colspan='4' style='text-align:center; color:red;'>Lỗi tải dữ liệu. Vui lòng kiểm tra lại link Google Sheets!</td></tr>";
       console.error(error);
     }
+  }
+
+  // --- HÀM VẼ GIAO DIỆN VIDEO TỰ ĐỘNG ---
+  function renderVideos(videoList) {
+    const videoGrid = document.getElementById("video-grid-container");
+    if (!videoGrid) return;
+    
+    videoGrid.innerHTML = ""; // Xóa chữ Đang tải
+
+    if (!videoList || videoList.length === 0) {
+      videoGrid.innerHTML = "<p style='padding: 20px; color:#666;'>Chưa có video nào.</p>";
+      return;
+    }
+
+    videoList.forEach(vid => {
+      const card = document.createElement("div");
+      card.className = "video-card";
+      // Tạo khung HTML cho từng video kèm ảnh bìa Youtube tự động
+      card.innerHTML = `
+        <div class="video-thumb">
+          <div class="play-icon">▶</div>
+          <img src="https://img.youtube.com/vi/${vid.ytId}/maxresdefault.jpg" alt="Thumbnail">
+        </div>
+        <div class="video-info">
+          <h4 class="video-title">${vid.title}</h4>
+          <p class="video-desc">${vid.desc}</p>
+        </div>
+      `;
+      
+      // Bắt sự kiện bấm vào thẻ thì mở cửa sổ xem video
+      card.addEventListener("click", () => {
+        document.getElementById("modal-video-title").innerText = vid.title;
+        document.getElementById("yt-iframe").src = `https://www.youtube.com/embed/${vid.ytId}?autoplay=1`;
+        document.getElementById("video-modal").classList.remove("hidden");
+      });
+
+      videoGrid.appendChild(card);
+    });
+  }
+
+  // Các nút điều khiển cửa sổ Video Modal
+  const btnCloseVideo = document.getElementById("close-video-modal");
+  if (btnCloseVideo) {
+    btnCloseVideo.addEventListener("click", () => {
+      document.getElementById("video-modal").classList.add("hidden");
+      document.getElementById("yt-iframe").src = ""; // Xóa link để ngắt tiếng video
+    });
+  }
+
+  const btnDoneWatching = document.getElementById("btn-done-watching");
+  if (btnDoneWatching) {
+    btnDoneWatching.addEventListener("click", () => {
+      document.getElementById("video-modal").classList.add("hidden");
+      document.getElementById("yt-iframe").src = "";
+      document.querySelector(".dashboard-table").scrollIntoView({ behavior: 'smooth' });
+    });
   }
 
   // --- HIỂN THỊ DANH SÁCH ĐỀ (DẠNG BẢNG) ---
