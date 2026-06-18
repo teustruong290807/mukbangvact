@@ -72,12 +72,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // --- HÀM VẼ GIAO DIỆN VIDEO (HỖ TRỢ GOOGLE DRIVE) ---
+  // --- HÀM VẼ GIAO DIỆN VIDEO (HỖ TRỢ YOUTUBE CHUẨN) ---
   function renderVideos(videoList) {
     const videoGrid = document.getElementById("video-grid-container");
     if (!videoGrid) return;
     
-    videoGrid.innerHTML = ""; // Xóa chữ Đang tải
+    videoGrid.innerHTML = ""; 
 
     if (!videoList || videoList.length === 0) {
       videoGrid.innerHTML = "<p style='padding: 20px; color:#666;'>Giáo viên chưa tải lên bài giảng nào.</p>";
@@ -88,11 +88,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const card = document.createElement("div");
       card.className = "video-card";
       
-      // Dùng một ảnh nền mặc định (vì Drive không tự tạo ảnh bìa như YouTube)
+      // TỰ ĐỘNG LẤY ẢNH BÌA TỪ YOUTUBE DỰA VÀO MÃ ID
       card.innerHTML = `
         <div class="video-thumb">
           <div class="play-icon">▶</div>
-          <img src="https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=600&auto=format&fit=crop" alt="Thumbnail">
+          <img src="https://img.youtube.com/vi/${vid.ytId}/maxresdefault.jpg" alt="Thumbnail">
         </div>
         <div class="video-info">
           <h4 class="video-title">${vid.title}</h4>
@@ -100,12 +100,12 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
       `;
       
-      // Bắt sự kiện bấm vào thẻ thì mở cửa sổ xem video từ Drive
+      // BẮT SỰ KIỆN MỞ VIDEO YOUTUBE
       card.addEventListener("click", () => {
         document.getElementById("modal-video-title").innerText = vid.title;
         
-        // GHÉP ID TỪ SHEETS VÀO LINK XEM TRƯỚC CỦA DRIVE
-        document.getElementById("yt-iframe").src = `https://drive.google.com/file/d/${vid.ytId}/preview`;
+        // PHÁT VIDEO NHÚNG YOUTUBE (Tự động phát + Khóa đề xuất video lạ)
+        document.getElementById("yt-iframe").src = `https://www.youtube.com/embed/${vid.ytId}?autoplay=1&rel=0`;
         
         document.getElementById("video-modal").classList.remove("hidden");
       });
