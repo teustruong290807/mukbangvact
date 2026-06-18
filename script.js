@@ -258,19 +258,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // SỬA CHỖ NÀY: Dùng await để buộc hệ thống chờ lưu điểm xong mới chạy tiếp
-    const historyKey = `thi_xong_${currentQuizData.quizId}_${userName}`;
-    const daThiTruocDo = localStorage.getItem(historyKey);
-
     try {
-      // Nếu chưa từng thi đề này với tên này, thì mới gửi dữ liệu lên Google Sheets
-      if (!daThiTruocDo) {
-        await fetch(`${APPS_SCRIPT_URL}?action=saveScore&quizId=${currentQuizData.quizId}&name=${encodeURIComponent(userName)}&score=${score}&time=${timeTakenSecs}`);
-        
-        // Ghi nhớ lại là người này đã thi đề này rồi để lần sau chặn lại
-        localStorage.setItem(historyKey, "true");
-      } else {
-        console.log("Học sinh này đang làm lại bài, hệ thống không lưu điểm mới.");
-      }
+      await fetch(`${APPS_SCRIPT_URL}?action=saveScore&quizId=${currentQuizData.quizId}&name=${encodeURIComponent(userName)}&score=${score}&time=${timeTakenSecs}`);
     } catch (err) {
       console.error("Lỗi lưu điểm:", err);
     }
