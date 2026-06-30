@@ -1,5 +1,5 @@
 // Đã gắn link API chuẩn của bạn
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxvDaLC3CPF76oD669ZF96EJ-UXNzleeDevU79fyQw8Xy9auH-Z-Gv5k9qvBPVtSvrTg/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz41rI1FitmvynC6OnGzrNRQR_Ehz8nbySPiJy8UExLT8lrO1EtYIhHfCS0fpHH6sEXlQ/exec";
 
 let database = []; 
 let userName = ""; // Biến lưu tên người làm bài
@@ -111,6 +111,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // --- HÀM VẼ GIAO DIỆN TÀI LIỆU TỰ ĐỘNG ---
+  // --- HÀM VẼ GIAO DIỆN TÀI LIỆU TỰ ĐỘNG ---
   function renderDocuments(docList) {
     const docTbody = document.getElementById("doc-list-tbody");
     if (!docTbody) return;
@@ -124,13 +125,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
     docList.forEach((doc, index) => {
       const tr = document.createElement("tr");
+      
+      // Mặc định luôn có nút tải file bài tập/lý thuyết
+      let actionButtonsHTML = `
+        <a href="${doc.link}" target="_blank" style="text-decoration: none; flex: 1;">
+          <button class="btn-enter-quiz" style="background: var(--surface-strong); width: 100%; white-space: nowrap;">Tải bài tập</button>
+        </a>
+      `;
+      
+      // XỬ LÝ THÔNG MINH: Nếu Cột C có link đáp án thì mới sinh ra nút thứ 2
+      if (doc.answerLink && doc.answerLink.trim() !== "") {
+        actionButtonsHTML += `
+          <a href="${doc.answerLink}" target="_blank" style="text-decoration: none; flex: 1;">
+            <button class="btn-enter-quiz" style="background: var(--text-tertiary); width: 100%; white-space: nowrap;">Xem đáp án</button>
+          </a>
+        `;
+      }
+
       tr.innerHTML = `
         <td class="col-stt" style="text-align:center;">${index + 1}</td>
         <td class="fw-bold">${doc.title}</td>
-        <td class="col-action" style="text-align:center;">
-          <a href="${doc.link}" target="_blank" style="text-decoration: none;">
-            <button class="btn-enter-quiz" style="background: var(--surface-strong); width: 100%;">Tải xuống</button>
-          </a>
+        <td class="col-action">
+          <div style="display: flex; gap: 8px; justify-content: center; align-items: center; width: 100%; flex-wrap: wrap;">
+            ${actionButtonsHTML}
+          </div>
         </td>
       `;
       docTbody.appendChild(tr);
