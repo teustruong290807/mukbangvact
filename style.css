@@ -238,6 +238,31 @@ body {
   .close-modal { top: 8px; right: 8px; font-size: 35px; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; background: #f3f4f6; border-radius: 50%; }
   .iframe-container { padding-bottom: 60%; min-height: 250px; }
   #btn-done-watching { width: 100%; padding: 14px; font-size: 15px; margin-top: 10px; }
+
+  /* ===== FIX LỖI BẢNG TRÀN TRÊN ĐIỆN THOẠI ===== */
+  .dashboard-table {
+    display: block;
+    width: 100%;
+    overflow-x: auto; /* Cho phép vuốt ngang nếu nội dung dài */
+    -webkit-overflow-scrolling: touch; /* Lướt mượt mà trên iOS */
+  }
+  .dashboard-table th, .dashboard-table td {
+    padding: 12px 10px !important; /* Giảm khoảng cách thừa */
+    font-size: 13.5px;
+    white-space: nowrap; /* Ép các cột số lượng, hành động nằm trên 1 dòng */
+  }
+  .dashboard-table td:nth-child(2) {
+    white-space: normal; /* Riêng cột Tên Bộ Từ Vựng thì cho phép rớt dòng */
+    min-width: 150px; /* Rộng tối thiểu để chữ không bị bóp méo */
+    line-height: 1.5;
+  }
+  .dashboard-table th {
+    font-size: 12px;
+  }
+  .btn-enter-quiz {
+    padding: 8px 12px !important;
+    font-size: 13px !important;
+  }
 }
 
 /* ================= HERO BANNER (CÓ HÌNH NỀN SIÊU THỰC) ================= */
