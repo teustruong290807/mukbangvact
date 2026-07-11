@@ -675,3 +675,54 @@ body {
   background: #fee2e2;
   color: var(--danger-bg) !important;
 }
+
+/* ================= FIX LỖI TRÀN BẢNG ĐIỆN THOẠI (BẢN CUỐI) ================= */
+/* 1. Ngăn chặn toàn bộ trang web bị kéo ngang */
+html, body {
+  overflow-x: hidden !important;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 15px 10px !important;
+    width: 100vw !important;
+    box-sizing: border-box;
+  }
+  
+  /* 2. Khóa chết chiều rộng khối trắng, không cho phình ra */
+  .category-block {
+    width: 100% !important;
+    max-width: calc(100vw - 20px) !important; /* Rộng tối đa bằng màn hình trừ 2 mép */
+  }
+
+  /* 3. Bật cuộn ngang ĐỘC LẬP cho cái bảng */
+  .dashboard-table {
+    display: block !important;
+    width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important; /* Lướt siêu mượt trên iPhone */
+    border-collapse: collapse !important;
+  }
+
+  /* 4. Ép các cột gọn gàng lại, cấm rớt dòng lung tung */
+  .dashboard-table th, .dashboard-table td {
+    padding: 12px 10px !important;
+    font-size: 13px !important;
+    white-space: nowrap !important; 
+  }
+
+  /* 5. Riêng cột Tên Bộ/Tên Tài liệu: Cho rớt dòng nhưng có giới hạn độ rộng */
+  .dashboard-table td:nth-child(2) {
+    white-space: normal !important;
+    min-width: 130px !important;
+    max-width: 180px !important;
+    line-height: 1.5;
+  }
+  
+  .btn-enter-quiz {
+    padding: 8px 12px !important;
+    font-size: 12px !important;
+    white-space: nowrap !important;
+  }
+}
