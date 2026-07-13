@@ -760,3 +760,36 @@ body {
 }
 /* Hiệu ứng hover cho loa phát âm 3D */
 button:hover .icon-3d-md { transform: scale(1.15) rotate(-5deg); }
+
+/* ================= FIX LỖI TRÀN KHUNG HỌC TẬP TRÊN ĐIỆN THOẠI ================= */
+@media (max-width: 768px) {
+  /* 1. Bóp khối nền trắng cho vừa màn hình hơn */
+  .learn-modal-content {
+    padding: 25px 15px !important;
+  }
+
+  /* 2. Ép các nút Trắc nghiệm xếp thành 1 CỘT DỌC */
+  .learn-options {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  /* 3. Thu nhỏ nút bấm & font chữ để hiển thị thanh thoát hơn */
+  .learn-option-btn, .match-btn {
+    padding: 12px 15px !important;
+    font-size: 14.5px !important;
+    min-height: 48px !important;
+    border-radius: 12px !important;
+  }
+
+  /* 4. Ép 2 cột của game Ghép nối gần lại nhau */
+  #learn-matching {
+    gap: 8px !important;
+  }
+
+  /* 5. Chỉnh lại chữ của Câu hỏi cho đỡ tốn diện tích */
+  #learn-prompt {
+    font-size: 20px !important;
+    margin-bottom: 15px !important;
+  }
+}
