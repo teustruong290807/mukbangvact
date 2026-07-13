@@ -104,7 +104,7 @@
 
   <div id="result-screen" class="result-screen hidden">
     <div class="result-content">
-      <div class="trophy-icon">🏆</div>
+      <div class="trophy-icon"><img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Trophy/3D/trophy_3d.png" class="icon-3d-lg" alt="Trophy"></div>
       <h2>Bạn đã hoàn thành bài thi</h2>
       <h1 class="score-display"><span id="final-score">0</span>/10 Điểm</h1>
       <p class="status-text" id="final-status">(Không đạt)</p>
@@ -127,7 +127,7 @@
   <div id="rank-modal" class="modal-overlay hidden">
     <div class="modal-content">
       <span class="close-modal" id="close-rank-modal">&times;</span>
-      <h2 style="color: #17a2b8; margin-top: 0;">Bảng Xếp Hạng 🏆</h2>
+      <h2 style="color: #17a2b8; margin-top: 0; display: flex; align-items: center; justify-content: center; gap: 8px;">Bảng Xếp Hạng <img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Trophy/3D/trophy_3d.png" class="icon-3d" style="width: 28px; height: 28px;" alt="Trophy"></h2>
       <h3 id="rank-quiz-title" style="font-size: 14px; color: #666; margin-bottom: 20px;"></h3>
       <table class="dashboard-table">
         <thead>
@@ -155,7 +155,7 @@
   <div id="flashcard-screen" class="quiz-container hidden" style="flex-direction: column; align-items: center; max-width: 800px;">
     <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
       <button id="btn-back-dashboard" class="btn-learn-action" style="width: auto; background: var(--surface-muted); color: var(--text-primary);">⬅ Trở về Home</button>
-      <button id="btn-open-learn" class="btn-start-learn" style="width: auto; padding: 12px 25px; background: linear-gradient(135deg, var(--surface-strong), #9333ea);">✨ Chuyển sang Học (Learn)</button>
+      <button id="btn-open-learn" class="btn-start-learn" style="width: auto; padding: 12px 25px; background: linear-gradient(135deg, var(--surface-strong), #9333ea);"><img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Sparkles/3D/sparkles_3d.png" class="icon-3d" alt="Sparkles"> Chuyển sang Học (Learn)</button>
     </div>
 
     <div class="learn-modal-content" style="width: 100%; text-align: center;">
@@ -172,7 +172,7 @@
             <p id="fc-phonetic" style="font-size: 18px; color: #6b7280; font-family: monospace; margin-bottom: 10px;">/wɜːrd/</p>
             
             <span id="fc-type" style="font-size: 20px; color: var(--text-secondary);">(type)</span>
-            <button id="btn-speak" title="Phát âm" style="margin-top:20px; background:none; border:none; font-size:30px; cursor:pointer;">🔊</button>
+            <button id="btn-speak" title="Phát âm" style="margin-top:20px; background:none; border:none; cursor:pointer;"><img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Speaker%20high%20volume/3D/speaker_high_volume_3d.png" class="icon-3d-md" alt="Audio"></button>
           </div>
           
           <!-- MẶT SAU: NGHĨA + VÍ DỤ + GHI CHÚ/TỪ ĐỒNG NGHĨA -->
@@ -186,10 +186,14 @@
         </div>
       </div>
 
+      <!-- Các nút chuyển từ & Ghi chú phím tắt -->
       <div style="display: flex; justify-content: space-between; margin-top: 25px;">
-        <button id="btn-prev-fc" class="btn-learn-action" style="width: 48%; background: var(--surface-muted); color: var(--text-primary);">⬅ Trước</button>
-        <button id="btn-next-fc" class="btn-learn-action" style="width: 48%;">Sau ➡</button>
+        <button id="btn-prev-fc" class="btn-learn-action" style="width: 48%; background: var(--surface-muted); color: var(--text-primary);">⬅ Trước (←)</button>
+        <button id="btn-next-fc" class="btn-learn-action" style="width: 48%;">Sau ➡ (→)</button>
       </div>
+      <p style="margin-top: 20px; font-size: 13.5px; color: var(--text-secondary); opacity: 0.8;">
+        <img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Light%20bulb/3D/light_bulb_3d.png" class="icon-3d" style="width: 18px; height: 18px;" alt="Tip"> Mẹo: Nhấn phím <b>Cách (Space)</b> để lật thẻ, phím <b>X</b> để phát âm.
+      </p>
     </div>
   </div>
 
@@ -204,8 +208,7 @@
     <div id="learn-play-screen" style="width: 100%;">
       <!-- Thanh chặng & Combo Lửa -->
       <div class="learn-header-bar">
-        <div class="combo-badge" id="combo-badge">🔥 x0</div>
-        <!-- ĐÃ KHÔI PHỤC LẠI THANH CHIA CHẶNG -->
+        <div class="combo-badge" id="combo-badge"><img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Fire/3D/fire_3d.png" class="icon-3d" alt="Fire"> x0</div>
         <div class="segmented-progress-container" id="segmented-progress-bar"></div>
         <div class="badge-circle badge-total" style="width: auto; padding: 0 15px;">
           <span id="badge-mastered">0</span> / <span id="badge-total">0</span>
@@ -215,7 +218,7 @@
       <!-- KHỐI CÂU HỎI CHÍNH -->
       <div class="learn-modal-content" style="width: 100%; text-align: center;" id="learn-main-board">
         <h2 id="learn-prompt" style="font-size: 26px; color: var(--text-primary); margin-top: 0; margin-bottom: 20px; font-weight: 700;">Câu hỏi</h2>
-        <button id="btn-prompt-audio" class="hidden" style="background: #f4f0f9; color: var(--surface-strong); border: 2px solid var(--surface-strong); border-radius: 50%; width: 70px; height: 70px; font-size: 28px; cursor: pointer; margin: 0 auto 25px auto; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(118, 88, 178, 0.2);">🔊</button>
+        <button id="btn-prompt-audio" class="hidden" style="background: #f4f0f9; border: 2px solid var(--surface-strong); border-radius: 50%; width: 70px; height: 70px; cursor: pointer; margin: 0 auto 25px auto; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(118, 88, 178, 0.2);"><img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Speaker%20high%20volume/3D/speaker_high_volume_3d.png" class="icon-3d-md" alt="Audio"></button>
 
         <p id="learn-feedback-text" class="hidden" style="font-weight: bold; margin-bottom: 15px; font-size: 16px;"></p>
 
@@ -234,17 +237,27 @@
 
       <!-- KHỐI MỚI: BẢNG TỔNG KẾT SAU MỖI CHẶNG -->
       <div id="segment-summary-screen" class="learn-modal-content hidden" style="width: 100%; text-align: center;">
-        <h2 style="color: var(--surface-strong); margin-top: 0; margin-bottom: 10px;">Hoàn thành chặng! 🎉</h2>
+        <h2 style="color: var(--surface-strong); margin-top: 0; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 10px;">Hoàn thành chặng! <img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Party%20popper/3D/party_popper_3d.png" class="icon-3d" style="width: 32px; height: 32px;" alt="Party"></h2>
         <p style="color: var(--text-secondary); margin-bottom: 25px;">Cùng ôn lại các từ bạn vừa gặp trong chặng này nhé:</p>
         
         <div id="segment-words-list" style="text-align: left; max-height: 350px; overflow-y: auto; margin-bottom: 25px; border: 2px solid var(--border-strong); border-radius: 12px; background: #faf7fc;">
           <!-- Các từ vựng sẽ được Javascript đổ vào đây -->
         </div>
         
-        <button id="btn-next-segment" class="btn-start-learn" style="padding: 15px;">Tiếp tục chặng tiếp theo ✨ (Enter)</button>
+        <button id="btn-next-segment" class="btn-start-learn" style="padding: 15px;">Tiếp tục chặng tiếp theo <img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Sparkles/3D/sparkles_3d.png" class="icon-3d" alt="Sparkles"> (Enter)</button>
       </div>
     </div>
   </div>
+
+  <!-- ================= BANNER CHÚC MỪNG POP-UP ================= -->
+  <div id="celebration-banner" class="celebration-overlay hidden">
+    <div class="celebration-content">
+      <div class="celebration-icon"><img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Trophy/3D/trophy_3d.png" class="icon-3d-lg" alt="Trophy"></div>
+      <h2 class="celebration-title">Tuyệt vời!</h2>
+      <p class="celebration-text">Bạn vừa vượt qua 1 chặng xuất sắc</p>
+    </div>
+  </div>
+
   <script src="script.js"></script>
 </body>
 </html>

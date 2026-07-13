@@ -558,7 +558,8 @@ function updateFlashcardUI() {
   // Xử lý Ghi chú / Từ đồng nghĩa
   const fcExtra = document.getElementById('fc-extra');
   if (fcExtra) {
-    fcExtra.innerText = word.extraInfo ? `💡 ${word.extraInfo}` : "";
+    // Đổi innerText thành innerHTML và chèn link ảnh 3D
+    fcExtra.innerHTML = word.extraInfo ? `<img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Light%20bulb/3D/light_bulb_3d.png" class="icon-3d" style="width: 18px; height: 18px;"> ${word.extraInfo}` : "";
     fcExtra.style.display = word.extraInfo ? "inline-block" : "none";
   }
 }
@@ -582,23 +583,78 @@ document.addEventListener("DOMContentLoaded", () => {
       });
   }
   
+  // Biến chống click đúp liên tục gây lỗi hiệu ứng
+  let isFCSwiping = false;
+
   const btnNextFc = document.getElementById('btn-next-fc');
   if (btnNextFc) {
       btnNextFc.addEventListener('click', () => {
-        if (flashcardIndex < currentVocabWords.length - 1) {
-          flashcardIndex++; document.getElementById('flashcard').classList.remove('is-flipped');
-          setTimeout(updateFlashcardUI, 200);
-        }
+        // Nếu thẻ đang bay hoặc đã hết từ thì bỏ qua click
+        if (isFCSwiping || flashcardIndex >= currentVocabWords.length - 1) return;
+        isFCSwiping = true;
+        
+        const container = document.getElementById('flashcard-container');
+        
+        // Bước 1: Trượt thẻ hiện tại sang TRÁI, thu nhỏ và mờ dần đi
+        container.style.transition = 'all 0.15s ease-in';
+        container.style.opacity = '0';
+        container.style.transform = 'translateX(-50px) scale(0.95)';
+
+        // Đợi 150 mili-giây cho thẻ bay ra ngoài xong rồi mới đổi chữ
+        setTimeout(() => {
+          // Bước 2: Chuyển sang từ mới & Tự động úp thẻ lại
+          flashcardIndex++; 
+          document.getElementById('flashcard').classList.remove('is-flipped');
+          updateFlashcardUI();
+          
+          // Bước 3: Đưa khung chứa tàng hình dịch sang bên PHẢI để chuẩn bị lướt vào
+          container.style.transition = 'none';
+          container.style.transform = 'translateX(50px) scale(0.95)';
+          void container.offsetWidth; // Bắt trình duyệt ghi nhận vị trí lập tức
+
+          // Bước 4: Thẻ mới lướt mạnh vào TRUNG TÂM với hiệu ứng nảy (cubic-bezier)
+          container.style.transition = 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+          container.style.opacity = '1';
+          container.style.transform = 'translateX(0) scale(1)';
+          
+          // Mở khóa click sau khi hiệu ứng hoàn tất
+          setTimeout(() => { isFCSwiping = false; }, 300);
+        }, 150);
       });
   }
 
   const btnPrevFc = document.getElementById('btn-prev-fc');
   if (btnPrevFc) {
       btnPrevFc.addEventListener('click', () => {
-        if (flashcardIndex > 0) {
-          flashcardIndex--; document.getElementById('flashcard').classList.remove('is-flipped');
-          setTimeout(updateFlashcardUI, 200);
-        }
+        // Nếu thẻ đang bay hoặc đang ở từ đầu tiên thì bỏ qua
+        if (isFCSwiping || flashcardIndex <= 0) return;
+        isFCSwiping = true;
+
+        const container = document.getElementById('flashcard-container');
+        
+        // Bước 1: Lùi về thì trượt thẻ sang PHẢI (Ngược lại với nút Next)
+        container.style.transition = 'all 0.15s ease-in';
+        container.style.opacity = '0';
+        container.style.transform = 'translateX(50px) scale(0.95)';
+
+        setTimeout(() => {
+          // Bước 2: Lùi từ & Úp thẻ
+          flashcardIndex--; 
+          document.getElementById('flashcard').classList.remove('is-flipped');
+          updateFlashcardUI();
+          
+          // Bước 3: Đưa khung tàng hình dịch sang bên TRÁI chuẩn bị lướt vào
+          container.style.transition = 'none';
+          container.style.transform = 'translateX(-50px) scale(0.95)';
+          void container.offsetWidth; 
+
+          // Bước 4: Lướt vào trung tâm
+          container.style.transition = 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+          container.style.opacity = '1';
+          container.style.transform = 'translateX(0) scale(1)';
+
+          setTimeout(() => { isFCSwiping = false; }, 300);
+        }, 150);
       });
   }
 
@@ -609,7 +665,35 @@ document.addEventListener("DOMContentLoaded", () => {
         playAudio(document.getElementById('fc-word').innerText);
       });
   }
-
+// ================= LẮNG NGHE PHÍM TẮT CHO FLASHCARD =================
+  document.addEventListener('keydown', (e) => {
+    const fcScreen = document.getElementById('flashcard-screen');
+    
+    // Chỉ nhận lệnh phím tắt khi người dùng ĐANG MỞ màn hình Flashcard
+    if (fcScreen && !fcScreen.classList.contains('hidden')) {
+      
+      // 1. Phím Cách (Space) -> Lật thẻ
+      if (e.code === 'Space') {
+        e.preventDefault(); // Chặn trình duyệt tự động cuộn trang xuống
+        document.getElementById('flashcard').classList.toggle('is-flipped');
+      } 
+      // 2. Mũi tên Phải (ArrowRight) -> Từ tiếp theo
+      else if (e.key === 'ArrowRight') {
+        const btnNextFc = document.getElementById('btn-next-fc');
+        if (btnNextFc) btnNextFc.click();
+      } 
+      // 3. Mũi tên Trái (ArrowLeft) -> Lùi lại từ trước
+      else if (e.key === 'ArrowLeft') {
+        const btnPrevFc = document.getElementById('btn-prev-fc');
+        if (btnPrevFc) btnPrevFc.click();
+      } 
+      // 4. Phím X (Chữ x hoa hoặc thường) -> Phát âm
+      else if (e.key === 'x' || e.key === 'X') {
+        const btnSpeak = document.getElementById('btn-speak');
+        if (btnSpeak) btnSpeak.click();
+      }
+    }
+  });
   // ================= CÁC SỰ KIỆN CỦA LEARN MODE (LOGIC COMBO LỬA & CHIA CHẶNG 5) =================
   let userProgress = {}; 
   let isAutoAdvancing = false; 
@@ -743,6 +827,41 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // =================================================================
+  // 💥 HÀM TẠO HIỆU ỨNG HẠT SÁNG NỔ BUNG (PARTICLE BURST)
+  // =================================================================
+  function createParticles(x, y) {
+    const particleCount = 15; // Số hạt bắn ra
+    for (let i = 0; i < particleCount; i++) {
+      const particle = document.createElement('div');
+      particle.className = 'particle';
+      
+      // Random kích thước hạt (từ 4px đến 10px)
+      const size = Math.random() * 6 + 4;
+      particle.style.width = `${size}px`;
+      particle.style.height = `${size}px`;
+      
+      // Đặt tâm vụ nổ chính xác tại tọa độ chuột/ngón tay
+      particle.style.left = `${x - size/2}px`;
+      particle.style.top = `${y - size/2}px`;
+      
+      // Tính toán hướng bay tỏa tròn 360 độ ngẫu nhiên
+      const angle = Math.random() * 2 * Math.PI;
+      const velocity = Math.random() * 60 + 40; // Tốc độ bay xa
+      const tx = Math.cos(angle) * velocity;
+      const ty = Math.sin(angle) * velocity;
+      
+      // Gắn tọa độ vào biến CSS custom để keyframe điều khiển
+      particle.style.setProperty('--tx', `${tx}px`);
+      particle.style.setProperty('--ty', `${ty}px`);
+      
+      document.body.appendChild(particle);
+      
+      // Tự dọn rác HTML sau 0.6 giây để không làm nặng web
+      setTimeout(() => particle.remove(), 600);
+    }
+  }
+
   // --- GAME 1: TRẮC NGHIỆM ĐA DẠNG ---
   function renderMCQ(unmastered) {
     let targetWord = unmastered[Math.floor(Math.random() * unmastered.length)];
@@ -783,19 +902,23 @@ document.addEventListener("DOMContentLoaded", () => {
       let btn = document.createElement('button'); 
       btn.className = 'learn-option-btn'; 
       btn.innerHTML = `<span class="option-num">${index + 1}</span> <span class="option-text">${opt}</span>`;
-      btn.onclick = () => checkMCQAnswer(opt === correctAns, targetWord, btn, correctAns);
+      
+      // KÍCH HOẠT BẪY BẮT TỌA ĐỘ (e) TẠI NÚT CLICK
+      btn.onclick = (e) => checkMCQAnswer(opt === correctAns, targetWord, btn, correctAns, e);
       container.appendChild(btn);
     });
   }
 
-  function checkMCQAnswer(isCorrect, targetWord, btn, correctAns) {
+  function checkMCQAnswer(isCorrect, targetWord, btn, correctAns, e) {
     if (isAutoAdvancing) return;
     document.getElementById('learn-question-area').style.pointerEvents = 'none';
     const fbText = document.getElementById('learn-feedback-text'); 
     fbText.classList.remove('hidden', 'text-success', 'text-error');
 
     if (isCorrect) {
-      // Xác định chỉ số âm thanh (0 đến 4) dựa trên số câu đúng trong chặng
+      // 🎇 BẮN PHÁO SÁNG TẠI VỊ TRÍ CHUỘT
+      if (e) createParticles(e.clientX, e.clientY);
+
       let soundIndex = currentCorrectCount % Q_PER_SEGMENT;
       streakSounds[soundIndex].currentTime = 0; 
       streakSounds[soundIndex].play();
@@ -862,13 +985,16 @@ document.addEventListener("DOMContentLoaded", () => {
       let btn = document.createElement('button');
       btn.className = 'match-btn';
       if(item.isAudio) {
-        btn.innerHTML = '🔊 Nghe phát âm';
+        // Chèn ảnh cái loa 3D
+        btn.innerHTML = '<img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Speaker%20high%20volume/3D/speaker_high_volume_3d.png" class="icon-3d" style="margin-right: 8px;"> Nghe phát âm';
       } else {
         btn.innerText = item.text;
       }
-      btn.onclick = () => {
+      
+      // KÍCH HOẠT BẪY BẮT TỌA ĐỘ
+      btn.onclick = (e) => {
         if(item.isAudio) playAudio(item.text);
-        handleMatchSelection(btn, item, 'left');
+        handleMatchSelection(btn, item, 'left', e);
       };
       leftCol.appendChild(btn);
     });
@@ -877,12 +1003,14 @@ document.addEventListener("DOMContentLoaded", () => {
       let btn = document.createElement('button');
       btn.className = 'match-btn';
       btn.innerText = item.text;
-      btn.onclick = () => handleMatchSelection(btn, item, 'right');
+      
+      // KÍCH HOẠT BẪY BẮT TỌA ĐỘ
+      btn.onclick = (e) => handleMatchSelection(btn, item, 'right', e);
       rightCol.appendChild(btn);
     });
   }
 
-  function handleMatchSelection(btn, item, colType) {
+  function handleMatchSelection(btn, item, colType, e) {
     if(btn.classList.contains('matched')) return;
 
     if(colType === 'left') {
@@ -899,13 +1027,17 @@ document.addEventListener("DOMContentLoaded", () => {
       let lItem = selectedMatch.left.item; let rItem = selectedMatch.right.item;
 
       if(lItem.id === rItem.id) {
+        
+        // 🎇 BẮN PHÁO SÁNG KHI GHÉP NỐI ĐÚNG 1 CẶP
+        if (e) createParticles(e.clientX, e.clientY);
+
         lBtn.className = 'match-btn matched'; rBtn.className = 'match-btn matched';
         userProgress[lItem.id].status++; 
         matchPairsLeft--;
         selectedMatch = { left: null, right: null };
         
         if(matchPairsLeft === 0) {
-          // Xong GAME NỐI -> ĐƯỢC TÍNH 1 BẬC -> BẬT ÂM THANH STREAK
+          // Xong GAME NỐI -> ĐƯỢC TÍNH 1 BẬC
           let soundIndex = currentCorrectCount % Q_PER_SEGMENT;
           streakSounds[soundIndex].currentTime = 0; 
           streakSounds[soundIndex].play();
@@ -922,7 +1054,7 @@ document.addEventListener("DOMContentLoaded", () => {
           isAutoAdvancing = true;
           setTimeout(() => { isAutoAdvancing = false; nextLearnQuestion(); }, 800);
         } else {
-          // Nối đúng 1 cặp nhưng chưa xong -> Bật tiếng Pop
+          // Nối đúng 1 cặp nhưng chưa xong
           soundPop.currentTime = 0; soundPop.play();
         }
       } else {
@@ -934,7 +1066,6 @@ document.addEventListener("DOMContentLoaded", () => {
         matchingMistakes++;
 
         if (matchingMistakes > 1) {
-          // SAI QUÁ 1 LẦN -> THUA CÂU NÀY
           globalCombo = 0; 
           saveLearnProgress(); updateLearnProgress();
 
@@ -951,7 +1082,6 @@ document.addEventListener("DOMContentLoaded", () => {
           btnNext.innerText = "Đã hiểu! Tiếp tục (Nhấn Enter)";
           btnNext.focus();
         } else {
-          // SAI 1 LẦN ĐẦU -> CHO SỬA
           setTimeout(() => {
             lBtn.classList.remove('error'); rBtn.classList.remove('error');
           }, 400); 
@@ -982,7 +1112,8 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById('badge-total').innerText = targetQuestions;
     
     let comboBadge = document.getElementById('combo-badge');
-    if (comboBadge) comboBadge.innerText = `🔥 x${globalCombo}`;
+    // Đổi innerText thành innerHTML và chèn ảnh lửa 3D
+    if (comboBadge) comboBadge.innerHTML = `<img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Fire/3D/fire_3d.png" class="icon-3d" alt="Fire"> x${globalCombo}`;
 
     const container = document.getElementById('segmented-progress-bar');
     if (container) {
@@ -1018,13 +1149,20 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ===================== HÀM TẠO BẢNG TỔNG KẾT =====================
+  // ===================== HÀM TẠO BẢNG TỔNG KẾT & BANNER =====================
   function showSegmentSummary() {
+    // 1. Ẩn bảng câu hỏi
     document.getElementById('learn-main-board').classList.add('hidden');
-    document.getElementById('segment-summary-screen').classList.remove('hidden');
     
+    // 2. Kích hoạt Banner chúc mừng nảy lên
+    const banner = document.getElementById('celebration-banner');
+    banner.classList.remove('hidden');
+    void banner.offsetWidth; // Ép trình duyệt khởi động CSS Animation
+    banner.classList.add('show');
+
+    // 3. Đổ dữ liệu sẵn vào bảng tổng kết (ẩn ở phía sau)
     const list = document.getElementById('segment-words-list');
     list.innerHTML = "";
-    
     segmentWordsTracker.forEach(w => {
       list.innerHTML += `
         <div style="display: flex; flex-direction: column; padding: 15px 20px; border-bottom: 1px solid var(--border-strong);">
@@ -1035,8 +1173,21 @@ document.addEventListener("DOMContentLoaded", () => {
           <span style="color: var(--text-primary); font-size: 16px;">${w.meaning}</span>
         </div>`;
     });
-    
-    document.getElementById('btn-next-segment').focus();
+
+    // 4. Giữ Banner khoe thành tích trong 1.8 giây, sau đó tự tắt và mở bảng tổng kết
+    setTimeout(() => {
+      banner.classList.remove('show');
+      
+      // Chờ CSS mờ dần (0.3s) rồi mới ẩn HTML hoàn toàn
+      setTimeout(() => {
+        banner.classList.add('hidden');
+        document.getElementById('segment-summary-screen').classList.remove('hidden');
+        
+        const btnNextSeg = document.getElementById('btn-next-segment');
+        if (btnNextSeg) btnNextSeg.focus();
+      }, 300);
+      
+    }, 1800); // 1800ms = 1.8 giây
   }
 
   const btnNextSegment = document.getElementById('btn-next-segment');
