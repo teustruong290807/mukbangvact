@@ -489,8 +489,8 @@ body {
 /* Tự động: 1 cột trên điện thoại, 2 cột trên máy tính */
 .learn-options { 
   display: grid; 
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
-  gap: 12px; 
+  grid-template-columns: 1fr 1fr; /* Ép cứng 2 cột bằng nhau */
+  gap: 15px; 
   width: 100%;
 }
 .learn-option-btn {
@@ -800,5 +800,26 @@ button:hover .icon-3d-md { transform: scale(1.15) rotate(-5deg); }
   #learn-prompt {
     font-size: 20px !important;
     margin-bottom: 15px !important;
+  }
+}
+
+/* ================= TỐI ƯU GIAO DIỆN HỌC TRÊN ĐIỆN THOẠI ================= */
+@media (max-width: 768px) {
+  /* Ép trắc nghiệm thành 1 CỘT DỌC */
+  .learn-options {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+  
+  /* Thu gọn nút bấm cho thanh thoát */
+  .learn-option-btn, .match-btn {
+    padding: 12px 15px !important;
+    font-size: 14.5px !important;
+    min-height: 55px !important;
+  }
+  
+  /* Ép 2 cột ghép nối gần lại nhau */
+  #learn-matching {
+    gap: 8px !important;
   }
 }
