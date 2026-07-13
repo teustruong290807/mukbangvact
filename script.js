@@ -1200,4 +1200,47 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // ================= TÍNH NĂNG CHUYỂN ĐỔI GIAO DIỆN DARK MODE =================
+  const themeToggleBtn = document.getElementById('theme-toggle-btn');
+  const themeIcon = document.getElementById('theme-icon');
+  
+  // Link ảnh 3D Mặt trăng và Mặt trời
+  const moonIcon = "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Crescent%20moon/3D/crescent_moon_3d.png";
+  const sunIcon = "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Sun%20with%20face/3D/sun_with_face_3d.png";
+
+  // Khôi phục giao diện nếu trước đó người dùng đã chọn Tối
+  if (localStorage.getItem('vact_theme') === 'dark') {
+    document.body.classList.add('dark-mode');
+    if (themeIcon) themeIcon.src = sunIcon;
+    
+    // Nếu vào trang mà đang ở sẵn Dark Mode (nghĩa là user đã biết xài), thì giấu luôn bong bóng
+    const guide = document.getElementById('theme-guide');
+    if (guide) guide.style.display = 'none';
+  }
+
+  // Sự kiện khi bấm nút công tắc
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+      
+      // BƯỚC 3 CHÍNH LÀ ĐOẠN NÀY: Giấu bong bóng hướng dẫn đi khi user bấm nút
+      const guide = document.getElementById('theme-guide');
+      if (guide) guide.classList.add('hidden-guide');
+
+      document.body.classList.toggle('dark-mode');
+      
+      // Tạo hiệu ứng thu nhỏ rối nảy lên cho icon khi đổi ảnh
+      themeIcon.style.transform = "scale(0.1)";
+      
+      setTimeout(() => {
+        if (document.body.classList.contains('dark-mode')) {
+          localStorage.setItem('vact_theme', 'dark'); // Lưu vào bộ nhớ
+          themeIcon.src = sunIcon; // Hiện mặt trời
+        } else {
+          localStorage.setItem('vact_theme', 'light');
+          themeIcon.src = moonIcon; // Hiện mặt trăng
+        }
+        themeIcon.style.transform = "scale(1)"; // Nảy lên lại
+      }, 150);
+    });
+  }
 }); // <-- Dấu đóng ngoặc cuối cùng của file

@@ -823,3 +823,169 @@ button:hover .icon-3d-md { transform: scale(1.15) rotate(-5deg); }
     gap: 8px !important;
   }
 }
+
+/* ================= CHẾ ĐỘ BAN ĐÊM (DARK MODE / MIDNIGHT PURPLE) ================= */
+body.dark-mode {
+  --text-primary: #e2d8f0;    /* Chữ chính màu Trắng ánh tím */
+  --text-tertiary: #bba6df;   /* Tím sáng cho tiêu đề */
+  --text-secondary: #a69bb5;  /* Xám tím cho chữ phụ */
+  --surface-base: #0f0c13;    /* Đen sâu */
+  --surface-muted: #221b2b;   /* Nền xám đen */
+  --border-strong: #362b45;   /* Viền xám đen */
+  --border-hover: #7658B2;
+  background: linear-gradient(135deg, #0f0c13 0%, #1a1523 100%);
+}
+
+/* Đổi màu tất cả các khối nền trắng (Card, Modal, Flashcard) sang Đen ánh kim */
+body.dark-mode .category-block, 
+body.dark-mode .quiz-container, 
+body.dark-mode .modal-content, 
+body.dark-mode .video-card,
+body.dark-mode .video-grid,
+body.dark-mode .flashcard-face,
+body.dark-mode .learn-modal-content,
+body.dark-mode .option-item,
+body.dark-mode .learn-option-btn,
+body.dark-mode .match-btn,
+body.dark-mode .tf-btn,
+body.dark-mode #segment-words-list,
+body.dark-mode .result-content {
+  background: #1a1523 !important;
+  border-color: #362b45 !important;
+  color: var(--text-primary) !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+}
+
+/* Kích màu chữ Trắng sáng cho các thẻ tiêu đề và chữ quan trọng */
+body.dark-mode .dashboard-table td, 
+body.dark-mode .video-title,
+body.dark-mode .question-text,
+body.dark-mode .option-text,
+body.dark-mode #fc-word,
+body.dark-mode #learn-prompt {
+  color: #ffffff !important;
+}
+
+/* Hiệu ứng hover rê chuột trong Dark Mode */
+body.dark-mode .category-header,
+body.dark-mode .dashboard-table tbody tr:hover,
+body.dark-mode .option-item:hover,
+body.dark-mode .learn-option-btn:hover,
+body.dark-mode .match-btn:hover,
+body.dark-mode .tf-btn:hover,
+body.dark-mode #segment-words-list > div:hover {
+  background: #2a2235 !important;
+  border-color: #7658B2 !important;
+}
+
+/* Xử lý mặt sau Flashcard và các Note nhỏ */
+body.dark-mode .flashcard-back { background: #201a2b !important; }
+body.dark-mode #fc-extra, 
+body.dark-mode .context-text,
+body.dark-mode .combo-badge,
+body.dark-mode #btn-prompt-audio {
+  background: #2a2235 !important;
+  color: #e2d8f0 !important;
+  border-color: #362b45 !important;
+}
+
+/* Xử lý độ tối của Banner Hero */
+body.dark-mode .hero-banner {
+  background: linear-gradient(to right, rgba(15, 12, 19, 0.95) 0%, rgba(118, 88, 178, 0.25) 100%), url('banner-bg.jpg');
+  background-size: cover; background-position: center;
+}
+
+/* ================= NÚT CÔNG TẮC DARK MODE NỔI ================= */
+.theme-toggle-btn {
+  position: fixed;
+  bottom: 25px;
+  left: 25px; /* Để bên trái để không đụng vào thanh lướt điện thoại */
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 10px 25px rgba(118, 88, 178, 0.3);
+  border: 2px solid #f0e6f7;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; z-index: 8000;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+body.dark-mode .theme-toggle-btn {
+  background: #2a2235;
+  border-color: #7658B2;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+.theme-toggle-btn:hover {
+  transform: scale(1.15) rotate(15deg);
+}
+.theme-toggle-btn .icon-3d {
+  width: 32px; height: 32px;
+}
+
+/* ================= TINH CHỈNH MÀU ĐÚNG/SAI CHO DARK MODE (Hiệu ứng Neon) ================= */
+/* Trạng thái ĐÚNG (Xanh ngọc nhạt phát sáng) */
+body.dark-mode .learn-option-btn.correct,
+body.dark-mode .option-item.correct-ans,
+body.dark-mode .tf-btn.correct-ans {
+  background: rgba(16, 185, 129, 0.15) !important;
+  border-color: #10b981 !important; 
+  color: #34d399 !important; 
+}
+body.dark-mode .learn-option-btn.correct .option-num,
+body.dark-mode .option-item.correct-ans .option-letter {
+  color: #34d399 !important; background: transparent !important; border-color: #10b981 !important;
+}
+
+/* Trạng thái SAI (Đỏ nhạt phát sáng) */
+body.dark-mode .learn-option-btn.incorrect,
+body.dark-mode .option-item.wrong-ans,
+body.dark-mode .tf-btn.wrong-ans {
+  background: rgba(239, 68, 68, 0.15) !important; 
+  border-color: #ef4444 !important; 
+  color: #f87171 !important;
+}
+body.dark-mode .learn-option-btn.incorrect .option-num,
+body.dark-mode .option-item.wrong-ans .option-letter {
+  color: #f87171 !important; background: transparent !important; border-color: #ef4444 !important;
+}
+
+/* Riêng nút Ghép nối (Matching) */
+body.dark-mode .match-btn.matched {
+  background: rgba(16, 185, 129, 0.2) !important; border-color: #10b981 !important; color: #34d399 !important; opacity: 0.6;
+}
+body.dark-mode .match-btn.error {
+  background: rgba(239, 68, 68, 0.25) !important; border-color: #ef4444 !important; color: #f87171 !important;
+}
+
+/* ================= BONG BÓNG HƯỚNG DẪN ĐỔI THEME ================= */
+.theme-guide {
+  position: fixed;
+  bottom: 95px; /* Nằm ngay trên nút công tắc */
+  left: 10px;
+  background: var(--surface-strong);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13.5px;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(118, 88, 178, 0.4);
+  z-index: 8000;
+  animation: floatGuide 2s infinite ease-in-out;
+  pointer-events: none; /* Không cản trở khi lỡ bấm trúng */
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+/* Cái đuôi tam giác trỏ xuống nút */
+.theme-guide::after {
+  content: ''; position: absolute; bottom: -6px; left: 25px;
+  border-width: 6px 6px 0; border-style: solid;
+  border-color: var(--surface-strong) transparent transparent transparent;
+}
+@keyframes floatGuide {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+/* Class để ẩn bong bóng mượt mà */
+.theme-guide.hidden-guide {
+  opacity: 0 !important;
+  transform: translateY(15px) scale(0.9);
+}
