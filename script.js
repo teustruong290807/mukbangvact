@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const dashboardScreen = document.getElementById("dashboard-screen");
   
   // KIỂM TRA ĐĂNG NHẬP
-  const savedUser = localStorage.getItem("vact_user_fullname");
+  const savedUser = sessionStorage.getItem("vact_user_fullname");
   if (savedUser) {
     // Đã đăng nhập -> Ẩn login, hiện dashboard, load dữ liệu
     userName = savedUser;
@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (result.status === "success") {
           // Đăng nhập thành công -> Lưu tên học sinh vào máy
           userName = result.fullName;
-          localStorage.setItem("vact_user_fullname", userName);
+          sessionStorage.setItem("vact_user_fullname", userName);
           
           loginScreen.classList.add("hidden");
           dashboardScreen.classList.remove("hidden");
@@ -75,7 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (btnLogout) {
     btnLogout.addEventListener("click", () => {
       if (confirm("Bạn có chắc chắn muốn đăng xuất?")) {
-        localStorage.removeItem("vact_user_fullname");
+        sessionStorage.removeItem("vact_user_fullname");
         window.location.reload();
       }
     });
