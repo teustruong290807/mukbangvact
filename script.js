@@ -785,12 +785,29 @@ document.addEventListener("DOMContentLoaded", () => {
     return array;
   }
 
+  // --- NÂNG CẤP HỆ THỐNG PHÁT ÂM (Web Speech API -> Google Translate TTS) ---
   function playAudio(text) {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      let utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'en-US'; window.speechSynthesis.speak(utterance);
-    }
+    if (!text || text.trim() === "") return;
+    
+    // 1. Dùng Google Translate Text-to-Speech (Ổn định trên mọi trình duyệt)
+    // tl=en: Ngôn ngữ tiếng Anh | q=text: Từ cần đọc | client=tw-ob: Tránh bị Google chặn
+    const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=en&client=tw-ob&q=${encodeURIComponent(text)}`;
+    
+    const audio = new Audio(audioUrl);
+    
+    // 2. Bắt lỗi trong trường hợp máy học sinh bị mất mạng tạm thời
+    audio.onerror = () => {
+      console.warn("Lỗi tải âm thanh Google TTS, chuyển sang giọng đọc mặc định của máy.");
+      // Fallback: Nếu API lỗi, tự động lùi về dùng giọng đọc của máy
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel(); // Hủy các lệnh đọc đang xếp hàng
+        let utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-US'; 
+        window.speechSynthesis.speak(utterance);
+      }
+    };
+    
+    audio.play();
   }
 
   const btnBackToFc = document.getElementById('btn-back-to-fc');
