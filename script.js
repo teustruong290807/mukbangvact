@@ -1,31 +1,92 @@
 // Đã gắn link API chuẩn của bạn
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz41rI1FitmvynC6OnGzrNRQR_Ehz8nbySPiJy8UExLT8lrO1EtYIhHfCS0fpHH6sEXlQ/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbynf5bcF4-JqG7OBKRGlxlYJmOXWSih1UiIMGu516HVQ5bfsULMC4pliKQpf-U-dHy6qg/exec";
 
 let database = []; 
 let userName = ""; // Biến lưu tên người làm bài
 let allFlashcards = [];
 
 document.addEventListener("DOMContentLoaded", () => {
+  const loginScreen = document.getElementById("login-screen");
+  const dashboardScreen = document.getElementById("dashboard-screen");
+  
+  // KIỂM TRA ĐĂNG NHẬP
+  const savedUser = localStorage.getItem("vact_user_fullname");
+  if (savedUser) {
+    // Đã đăng nhập -> Ẩn login, hiện dashboard, load dữ liệu
+    userName = savedUser;
+    if (loginScreen) loginScreen.classList.add("hidden");
+    loadDataFromSheet();
+  } else {
+    // Chưa đăng nhập -> Hiện màn hình login, ẩn dashboard
+    if (dashboardScreen) dashboardScreen.classList.add("hidden");
+    if (loginScreen) loginScreen.classList.remove("hidden");
+  }
+
+  // SỰ KIỆN NÚT ĐĂNG NHẬP
+  const btnLogin = document.getElementById("btn-login");
+  if (btnLogin) {
+    btnLogin.addEventListener("click", async function() {
+      const userVal = document.getElementById("login-username").value.trim();
+      const passVal = document.getElementById("login-password").value.trim();
+      const errorEl = document.getElementById("login-error");
+      
+      if (!userVal || !passVal) {
+        errorEl.innerText = "Vui lòng nhập đủ tài khoản và mật khẩu!";
+        errorEl.style.display = "block";
+        return;
+      }
+
+      this.innerText = "Đang kiểm tra... ⏳";
+      this.disabled = true;
+      errorEl.style.display = "none";
+
+      try {
+        // Gọi lên GAS bằng phương thức GET để tránh lỗi CORS
+        const loginUrl = `${APPS_SCRIPT_URL}?action=login&username=${encodeURIComponent(userVal)}&password=${encodeURIComponent(passVal)}`;
+        const response = await fetch(loginUrl);
+        const result = await response.json();
+        
+        if (result.status === "success") {
+          // Đăng nhập thành công -> Lưu tên học sinh vào máy
+          userName = result.fullName;
+          localStorage.setItem("vact_user_fullname", userName);
+          
+          loginScreen.classList.add("hidden");
+          dashboardScreen.classList.remove("hidden");
+          
+          // Bắt đầu tải dữ liệu web
+          loadDataFromSheet();
+        } else {
+          errorEl.innerText = result.message || "Đăng nhập thất bại!";
+          errorEl.style.display = "block";
+        }
+      } catch (err) {
+        errorEl.innerText = "Lỗi kết nối máy chủ. Vui lòng thử lại!";
+        errorEl.style.display = "block";
+      } finally {
+        this.innerText = "Vào Học Ngay";
+        this.disabled = false;
+      }
+    });
+  }
+
+  // SỰ KIỆN NÚT ĐĂNG XUẤT
+  const btnLogout = document.getElementById("btn-logout");
+  if (btnLogout) {
+    btnLogout.addEventListener("click", () => {
+      if (confirm("Bạn có chắc chắn muốn đăng xuất?")) {
+        localStorage.removeItem("vact_user_fullname");
+        window.location.reload();
+      }
+    });
+  }
+
   // --- TÍNH NĂNG MỞ VIDEO BÀI GIẢNG ---
   const videoModal = document.getElementById("video-modal");
   const ytIframe = document.getElementById("yt-iframe");
   const modalVideoTitle = document.getElementById("modal-video-title");
 
-  // Bắt sự kiện click vào các thẻ video
-  document.querySelectorAll(".video-card").forEach(card => {
-    card.addEventListener("click", function() {
-      const ytId = this.getAttribute("data-ytid");
-      const title = this.querySelector(".video-title").innerText;
-      
-      modalVideoTitle.innerText = title;
-      // Gắn link nhúng Youtube (autoplay=1 để tự phát khi mở lên)
-      ytIframe.src = `https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0`;
-      
-      videoModal.classList.remove("hidden");
-    });
-  });
-
-  // Tắt Modal Video
+  // Bắt sự kiện click vào các thẻ video (chỉ gán sau khi load data xong, nên đưa vào hàm renderVideos)
   document.getElementById("close-video-modal").addEventListener("click", () => {
     videoModal.classList.add("hidden");
     ytIframe.src = ""; // Xóa source để video ngừng phát và tắt tiếng
@@ -38,7 +99,6 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelector(".dashboard-table").scrollIntoView({ behavior: 'smooth' });
   });
 
-  const dashboardScreen = document.getElementById("dashboard-screen");
   const quizContainer = document.getElementById("quiz-container");
   const resultScreen = document.getElementById("result-screen");
   
@@ -53,35 +113,38 @@ document.addEventListener("DOMContentLoaded", () => {
   let timerId = null;         
 
   // --- HÀM TẢI DỮ LIỆU TỪ GOOGLE SHEETS ---
+  // --- HÀM TẢI DỮ LIỆU TỪ GOOGLE SHEETS ---
   async function loadDataFromSheet() {
-    // 1. Bật trạng thái "Đang tải..." cho bảng Bài tập
     if (quizListEl) quizListEl.innerHTML = "<tr><td colspan='4' style='text-align:center; color:#666;'>Đang tải bài tập... ⏳</td></tr>";
-    
-    // 2. BẬT TRẠNG THÁI "ĐANG TẢI..." CHO BẢNG TỪ VỰNG
     const vocabTbody = document.getElementById('vocab-list-tbody');
     if (vocabTbody) vocabTbody.innerHTML = "<tr><td colspan='4' style='text-align:center; color:#666;'>Đang tải kho từ vựng... ⏳</td></tr>";
+    const docTbody = document.getElementById("doc-list-tbody");
+    const videoGrid = document.getElementById("video-grid-container");
     
     try {
       const response = await fetch(APPS_SCRIPT_URL);
-      const apiData = await response.json(); // Nhận dữ liệu tổng hợp
+      const apiData = await response.json(); 
       
-      database = apiData.quizzes; // Tách lấy kho đề thi
+      // Nếu GAS báo lỗi (VD: Quên tạo tab TaiKhoan)
+      if(apiData.status === "error") throw new Error(apiData.message);
+
+      database = apiData.quizzes; 
       database.sort((a, b) => a.title.localeCompare(b.title));
 
       allFlashcards = apiData.flashcards || [];
       
-      // Hàm này sẽ tự động xóa dòng "Đang tải..." và đắp dữ liệu thật lên
       renderVocabList();
-      
-      // Gọi các hàm vẽ giao diện
       renderDashboard(); 
       renderVideos(apiData.videos); 
       renderDocuments(apiData.documents); 
       
     } catch (error) {
-      if (quizListEl) quizListEl.innerHTML = "<tr><td colspan='4' style='text-align:center; color:red;'>Lỗi tải dữ liệu. Vui lòng kiểm tra lại link Google Sheets!</td></tr>";
-      if (vocabTbody) vocabTbody.innerHTML = "<tr><td colspan='4' style='text-align:center; color:red;'>Lỗi tải dữ liệu.</td></tr>";
       console.error(error);
+      // Dọn sạch chữ "Đang tải..." và thay bằng thông báo lỗi màu đỏ cho TẤT CẢ các bảng
+      if (quizListEl) quizListEl.innerHTML = "<tr><td colspan='4' style='text-align:center; color:red;'>Lỗi: Không thể kết nối Google Sheets! Vui lòng kiểm tra lại link APPS_SCRIPT_URL.</td></tr>";
+      if (vocabTbody) vocabTbody.innerHTML = "<tr><td colspan='4' style='text-align:center; color:red;'>Lỗi tải dữ liệu.</td></tr>";
+      if (docTbody) docTbody.innerHTML = "<tr><td colspan='3' style='text-align:center; color:red;'>Lỗi kết nối máy chủ.</td></tr>";
+      if (videoGrid) videoGrid.innerHTML = "<p style='padding: 20px; color:red;'>Lỗi kết nối máy chủ.</p>";
     }
   }
 
@@ -123,12 +186,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // --- HÀM VẼ GIAO DIỆN TÀI LIỆU TỰ ĐỘNG ---
-  // --- HÀM VẼ GIAO DIỆN TÀI LIỆU TỰ ĐỘNG ---
   function renderDocuments(docList) {
     const docTbody = document.getElementById("doc-list-tbody");
     if (!docTbody) return;
     
-    docTbody.innerHTML = ""; // Xóa chữ Đang tải...
+    docTbody.innerHTML = ""; 
 
     if (!docList || docList.length === 0) {
       docTbody.innerHTML = "<tr><td colspan='3' style='text-align:center; color:#666;'>Giáo viên chưa tải lên tài liệu nào.</td></tr>";
@@ -138,14 +200,12 @@ document.addEventListener("DOMContentLoaded", () => {
     docList.forEach((doc, index) => {
       const tr = document.createElement("tr");
       
-      // Mặc định luôn có nút tải file bài tập/lý thuyết
       let actionButtonsHTML = `
         <a href="${doc.link}" target="_blank" style="text-decoration: none; flex: 1;">
           <button class="btn-enter-quiz" style="background: var(--surface-strong); width: 100%; white-space: nowrap;">Tải bài tập</button>
         </a>
       `;
       
-      // XỬ LÝ THÔNG MINH: Nếu Cột C có link đáp án thì mới sinh ra nút thứ 2
       if (doc.answerLink && doc.answerLink.trim() !== "") {
         actionButtonsHTML += `
           <a href="${doc.answerLink}" target="_blank" style="text-decoration: none; flex: 1;">
@@ -187,12 +247,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.querySelectorAll(".btn-enter-quiz[data-quizid]").forEach(btn => {
       btn.addEventListener("click", function() {
-        let name = prompt("Nhập Họ và Tên của bạn để lưu lên Bảng xếp hạng:");
-        if (!name || name.trim() === "") {
-          alert("Bạn phải nhập tên để vào thi nhé!");
-          return;
-        }
-        userName = name.trim(); 
+        // Không dùng prompt nữa vì đã có userName từ bước đăng nhập
         startSpecificQuiz(this.getAttribute("data-quizid"));
       });
     });
@@ -207,7 +262,7 @@ document.addEventListener("DOMContentLoaded", () => {
     questionGridEl.innerHTML = "";
     document.querySelector(".main-content").classList.remove("review-mode");
     
-    dashboardScreen.classList.add("hidden");
+    if (dashboardScreen) dashboardScreen.classList.add("hidden");
     quizContainer.classList.remove("hidden");
     
     renderQuizQuestions(currentQuizData.questions);
@@ -479,8 +534,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Gọi hàm tải dữ liệu ngay khi web vừa mở
-  loadDataFromSheet();
+  // ĐÃ XÓA dòng loadDataFromSheet(); mồ côi ở đây
 });
 
 /* =========================================================================
@@ -708,7 +762,6 @@ document.addEventListener("DOMContentLoaded", () => {
   let lastSegmentTriggered = 0;
 
   // 🎵 BỘ ÂM THANH STREAK 1 ĐẾN 5 🎵
-  // Bạn hãy thay tên file 1.mp3, 2.mp3... bằng tên file thực tế của bạn
   const streakSounds = [
     new Audio('1.mp3'), // Câu 1
     new Audio('2.mp3'), // Câu 2

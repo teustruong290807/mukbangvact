@@ -4,11 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>"mukbang" V-ACT</title>
-  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="icon" type="image/png" href="logomandangnhap.png">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- ================= MÀN HÌNH ĐĂNG NHẬP ================= -->
+  <div id="login-screen" class="login-overlay">
+    <div class="login-box modal-content">
+      <div style="margin-bottom: 20px;">
+        <img src="logomandangnhap.png" alt="Logo" style="width: 80px; border-radius: 20px; box-shadow: var(--shadow-sm);">
+      </div>
+      <h2 style="color: var(--text-tertiary); margin-bottom: 10px; margin-top: 0;">Đăng nhập</h2>
+      <p style="color: var(--text-secondary); margin-bottom: 25px;">"mukbang" V-ACT</p>
+      
+      <input type="text" id="login-username" placeholder="Tài khoản" class="login-input">
+      <input type="password" id="login-password" placeholder="Mật khẩu" class="login-input">
+      
+      <button id="btn-login" class="btn-submit" style="width: 100%; padding: 14px; font-size: 16px;">Đăng nhập</button>
+      <p id="login-error" style="color: var(--danger-bg); margin-top: 15px; font-weight: 600; display: none;"></p>
+    </div>
+  </div>
 
   <!-- ================= MÀN HÌNH CHÍNH ================= -->
   <div id="dashboard-screen" class="dashboard-container">
