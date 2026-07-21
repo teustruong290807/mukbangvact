@@ -786,25 +786,37 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // --- NÂNG CẤP HỆ THỐNG PHÁT ÂM (Web Speech API -> Google Translate TTS) ---
+  // --- NÂNG CẤP HỆ THỐNG PHÁT ÂM (Youdao -> Google -> Local TTS) ---
   function playAudio(text) {
     if (!text || text.trim() === "") return;
     
-    // 1. Dùng Google Translate Text-to-Speech (Ổn định trên mọi trình duyệt)
-    // tl=en: Ngôn ngữ tiếng Anh | q=text: Từ cần đọc | client=tw-ob: Tránh bị Google chặn
-    const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=en&client=tw-ob&q=${encodeURIComponent(text)}`;
+    // LỚP 1: Dùng API Youdao (Cực kỳ nhanh ở châu Á, không bị chặn trên máy nội địa)
+    // type=1 là giọng chuẩn Mỹ (US), type=2 là giọng Anh (UK)
+    const primaryUrl = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(text)}&type=1`;
+    const audio = new Audio(primaryUrl);
     
-    const audio = new Audio(audioUrl);
-    
-    // 2. Bắt lỗi trong trường hợp máy học sinh bị mất mạng tạm thời
+    // Nếu lớp 1 bị lỗi (mất mạng hoặc server từ chối), tự động nhảy sang lớp 2
     audio.onerror = () => {
-      console.warn("Lỗi tải âm thanh Google TTS, chuyển sang giọng đọc mặc định của máy.");
-      // Fallback: Nếu API lỗi, tự động lùi về dùng giọng đọc của máy
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel(); // Hủy các lệnh đọc đang xếp hàng
-        let utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'en-US'; 
-        window.speechSynthesis.speak(utterance);
-      }
+      console.warn("Lỗi tải Youdao TTS, chuyển sang Google TTS...");
+      
+      // LỚP 2: Fallback sang Google Translate
+      const fallbackUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=en&client=tw-ob&q=${encodeURIComponent(text)}`;
+      const fallbackAudio = new Audio(fallbackUrl);
+      
+      // Nếu Google cũng bị nghẽn/chặn, nhảy sang lớp 3 cuối cùng
+      fallbackAudio.onerror = () => {
+        console.warn("Google TTS cũng lỗi, chuyển sang giọng đọc mặc định của máy.");
+        
+        // LỚP 3: Dùng giọng đọc Offline mặc định của thiết bị
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel(); 
+          let utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = 'en-US'; 
+          window.speechSynthesis.speak(utterance);
+        }
+      };
+      
+      fallbackAudio.play();
     };
     
     audio.play();
